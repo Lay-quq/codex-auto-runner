@@ -1,0 +1,20 @@
+{
+  "name": "@car/quota-engine",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --root ../.."
+  },
+  "dependencies": {
+    "@car/protocol-schema": "workspace:*",
+    "@car/shared-types": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.0",
+    "vitest": "^2.1.0"
+  }
+}

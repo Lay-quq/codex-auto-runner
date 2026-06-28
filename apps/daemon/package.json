@@ -1,0 +1,30 @@
+{
+  "name": "@car/daemon",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "bin": {
+    "car-daemon": "src/index.ts"
+  },
+  "scripts": {
+    "start": "tsx src/index.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@car/app-server-client": "workspace:*",
+    "@car/codex-resolver": "workspace:*",
+    "@car/git-guard": "workspace:*",
+    "@car/logger": "workspace:*",
+    "@car/persistence": "workspace:*",
+    "@car/protocol-schema": "workspace:*",
+    "@car/quota-engine": "workspace:*",
+    "@car/shared-types": "workspace:*",
+    "@car/task-engine": "workspace:*",
+    "@car/validator": "workspace:*"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0"
+  }
+}

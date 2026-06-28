@@ -1,0 +1,38 @@
+node_modules/
+dist/
+*.tsbuildinfo
+.cache/
+.env
+.env.local
+.env.*
+!.env.example
+.codex-global-state.json*
+*.log
+logs/
+.DS_Store
+
+# Local runtime and private machine state
+.codex/
+.claude/
+.local/
+*.db
+*.sqlite
+*.sqlite3
+
+# TypeScript sidecar output emitted beside source during local checks
+apps/**/src/**/*.js
+apps/**/src/**/*.js.map
+apps/**/src/**/*.d.ts
+apps/**/src/**/*.d.ts.map
+packages/**/src/**/*.js
+packages/**/src/**/*.js.map
+packages/**/src/**/*.d.ts
+packages/**/src/**/*.d.ts.map
+packages/**/test/**/*.js
+packages/**/test/**/*.js.map
+packages/**/test/**/*.d.ts
+packages/**/test/**/*.d.ts.map
+
+# Live probe dumps may contain private Codex session names and local paths
+tools/fixtures/app-server/*.json
+tools/fixtures/live-test-repo/
