@@ -116,7 +116,7 @@ export class AppServerClient extends EventEmitter {
   async start(): Promise<void> {
     if (this.child && !this.closed) return;
     this.closed = false;
-    this.log.info("starting codex app-server", { path: this.opts.codexPath, args: this.codexArgs });
+    this.log.info("starting codex app-server", { executable: "codex", args: this.codexArgs });
     const child = spawn(this.opts.codexPath, this.codexArgs, {
       stdio: ["pipe", "pipe", "pipe"],
       windowsHide: this.opts.windowsHide,

@@ -5,7 +5,7 @@
  */
 
 import { AppServerClient } from "@car/app-server-client";
-import { resolveCodex } from "@car/codex-resolver";
+import { redactLocalPath, resolveCodex } from "@car/codex-resolver";
 import { createLogger } from "@car/logger";
 import { join } from "node:path";
 import { mkdirSync, writeFileSync } from "node:fs";
@@ -21,7 +21,7 @@ async function main(): Promise<void> {
   const client = new AppServerClient({ codexPath: codex.path, logger: log, requestTimeoutMs: 60_000 });
   await client.start();
 
-  const dump: Record<string, unknown> = { codex: { ...codex } };
+  const dump: Record<string, unknown> = { codex: { ...codex, path: redactLocalPath(codex.path) } };
 
   // 1) thread/list
   try {

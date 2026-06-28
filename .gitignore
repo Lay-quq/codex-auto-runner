@@ -18,6 +18,14 @@ logs/
 *.db
 *.sqlite
 *.sqlite3
+data/
+codex-portable/
+api.json
+car-api.token
+runner.db
+status.json
+events.jsonl
+settings.json
 
 # TypeScript sidecar output emitted beside source during local checks
 apps/**/src/**/*.js
@@ -34,5 +42,6 @@ packages/**/test/**/*.d.ts
 packages/**/test/**/*.d.ts.map
 
 # Live probe dumps may contain private Codex session names and local paths
+tools/fixtures/app-server/
 tools/fixtures/app-server/*.json
 tools/fixtures/live-test-repo/

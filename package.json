@@ -23,6 +23,8 @@
     "web:build": "pnpm --filter @car/web build",
     "probe": "tsx tools/protocol-probe/src/index.ts",
     "probe:turn": "tsx tools/thread-turn-probe/src/index.ts",
+    "doctor": "tsx scripts/doctor.ts",
+    "privacy:check": "tsx scripts/privacy-check.ts",
     "schema:gen": "tsx scripts/generate-schema.ts",
     "build": "pnpm -r build",
     "typecheck": "pnpm -r typecheck",

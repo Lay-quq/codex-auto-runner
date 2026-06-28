@@ -9,7 +9,7 @@
  */
 
 import { existsSync, copyFileSync, mkdirSync, cpSync } from "node:fs";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { spawnSync } from "node:child_process";
 import { homedir } from "node:os";
 import type { Logger } from "@car/logger";
@@ -22,6 +22,23 @@ export interface CodexResolveResult {
 }
 
 const ENV_VAR = "CAR_CODEX_EXEC";
+
+export function redactLocalPath(path: string): string {
+  let out = path.replace(/\//g, "\\");
+  out = replacePathPrefix(out, process.env.LOCALAPPDATA, "%LOCALAPPDATA%");
+  out = replacePathPrefix(out, process.env.USERPROFILE ?? homedir(), "%USERPROFILE%");
+  out = replacePathPrefix(out, process.env.ProgramFiles, "%ProgramFiles%");
+  out = replacePathPrefix(out, process.env["ProgramFiles(x86)"], "%ProgramFiles(x86)%");
+  return out;
+}
+
+function replacePathPrefix(path: string, prefix: string | undefined, label: string): string {
+  if (!prefix) return path;
+  const cleanPrefix = prefix.replace(/\//g, "\\").replace(/\\+$/, "");
+  if (!cleanPrefix) return path;
+  if (!path.toLowerCase().startsWith(cleanPrefix.toLowerCase())) return path;
+  return label + path.slice(cleanPrefix.length);
+}
 
 /**
  * 用 PowerShell Get-AppxPackage 免提权探测 Codex 桌面版安装路径。
@@ -85,20 +102,20 @@ export async function resolveCodex(log?: Logger): Promise<CodexResolveResult> {
   if (envPath && existsSync(envPath)) {
     const v = tryVersion(envPath);
     if (v) {
-      log?.info("codex resolved from env", { path: envPath, version: v });
+      log?.info("codex resolved from env", { path: redactLocalPath(envPath), version: v });
       return { path: envPath, version: v, source: "env", staged: false };
     }
-    log?.warn("env CAR_CODEX_EXEC set but not runnable", { path: envPath });
+    log?.warn("env CAR_CODEX_EXEC set but not runnable", { path: redactLocalPath(envPath) });
   }
 
   // 2. existing staging
   if (existsSync(stagedPre)) {
     const v = tryVersion(stagedPre);
     if (v) {
-      log?.info("codex resolved from staging", { path: stagedPre, version: v });
+      log?.info("codex resolved from staging", { path: redactLocalPath(stagedPre), version: v });
       return { path: stagedPre, version: v, source: "staged", staged: true };
     }
-    log?.warn("staged codex exists but not runnable, will re-stage", { path: stagedPre });
+    log?.warn("staged codex exists but not runnable, will re-stage", { path: redactLocalPath(stagedPre) });
   }
 
   // 3. PATH
@@ -106,7 +123,7 @@ export async function resolveCodex(log?: Logger): Promise<CodexResolveResult> {
   if (pathExe) {
     const v = tryVersion(pathExe);
     if (v) {
-      log?.info("codex resolved from PATH", { path: pathExe, version: v });
+      log?.info("codex resolved from PATH", { path: redactLocalPath(pathExe), version: v });
       return { path: pathExe, version: v, source: "path", staged: false };
     }
   }
@@ -118,11 +135,11 @@ export async function resolveCodex(log?: Logger): Promise<CodexResolveResult> {
       "Codex 未找到。请安装 Codex 桌面版/CLI，或通过环境变量 " + ENV_VAR + " 指定 codex 可执行路径。"
     );
   }
-  log?.info("staging codex from WindowsApps", { src, dest: defaultStagingDir() });
+  log?.info("staging codex from WindowsApps", { src: redactLocalPath(src), dest: redactLocalPath(defaultStagingDir()) });
   mkdirSync(defaultStagingDir(), { recursive: true });
   copyFileSync(src, stagedPre);
   // 拷贝可能被 codex 运行时需要的同级目录
-  const srcDir = join(src, "..");
+  const srcDir = dirname(src);
   for (const sub of ["codex", "codex-command-runner.exe", "plugins", "cua_node"]) {
     const from = join(srcDir, sub);
     if (existsSync(from)) {
@@ -134,7 +151,7 @@ export async function resolveCodex(log?: Logger): Promise<CodexResolveResult> {
   if (!v) {
     throw new Error("从 WindowsApps 暂存 codex 后仍无法运行，请检查 Codex 安装完整性。");
   }
-  log?.info("codex staged ok", { path: stagedPre, version: v });
+  log?.info("codex staged ok", { path: redactLocalPath(stagedPre), version: v });
   return { path: stagedPre, version: v, source: "windowsapps", staged: true };
 }
 

@@ -112,6 +112,7 @@ codex-auto-runner/
 
 ```bash
 pnpm install
+pnpm doctor
 pnpm --filter @car/daemon start
 pnpm web
 ```
@@ -121,6 +122,19 @@ pnpm web
 ```text
 http://127.0.0.1:5173/
 ```
+
+`pnpm doctor` 会在当前机器上自动查找 Codex，并确认可执行文件可以运行。它不会把真实本机路径写入仓库，也不会读取或上传用户的账号凭据。
+
+### Codex 自动发现顺序
+
+下载者不需要改代码绑定自己的 Codex 路径。运行时会按以下顺序解析 Codex：
+
+1. `CAR_CODEX_EXEC`：用户显式指定的 codex 可执行文件。
+2. `%LOCALAPPDATA%\CodexAutoRunner\codex-portable\codex.exe`：本机已经暂存过的副本。
+3. `PATH` 中的 `codex`。
+4. Windows Codex Desktop：通过 `Get-AppxPackage -Name OpenAI.Codex` 免提权发现 MSIX 安装位置，并把运行所需文件复制到用户本机的 `%LOCALAPPDATA%\CodexAutoRunner\codex-portable\`。
+
+因此，GitHub 仓库里不会保存某一台电脑的 `%USERPROFILE%` 真实路径，也不会绑定作者机器上的 Codex 安装目录。每个用户首次运行时都会在自己的机器上重新解析。
 
 ## 常用命令
 
@@ -134,6 +148,8 @@ pnpm car task resume <task-id>
 pnpm schema:gen
 pnpm probe
 pnpm probe:turn
+pnpm doctor
+pnpm privacy:check
 pnpm typecheck
 pnpm test
 ```
@@ -143,10 +159,20 @@ pnpm test
 - daemon 只监听 `127.0.0.1`。
 - 本地 HTTP API 使用随机 token 鉴权。
 - `.env`、日志、数据库、构建产物、探针转储、本机运行数据不会进入 Git。
+- `api.json`、`car-api.token`、`runner.db`、`status.json`、`events.jsonl` 等运行文件只在用户本机生成，并已被 `.gitignore` 排除。
+- Codex 可执行路径只在运行时解析；日志和诊断输出会把 `%LOCALAPPDATA%`、`%USERPROFILE%` 等本机路径脱敏。
 - 日志会脱敏 token、authorization、secret、account_id 等字段。
 - 不自动 push、不自动部署、不替用户接受高风险审批。
 - Codex 网络访问需要显式开启，默认关闭。
 - 当额度未知、需要登录、项目被锁定、验证失败或任务需要人工判断时，调度器会停止自动推进。
+
+发布前可以运行：
+
+```bash
+pnpm privacy:check
+```
+
+该命令会扫描仓库文件，发现真实用户路径、Codex 私有会话路径、常见 API Key、GitHub token、Bearer token 或本地运行文件名时直接失败，避免把个人信息误提交到公开仓库。
 
 ## 开发检查
 

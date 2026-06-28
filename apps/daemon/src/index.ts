@@ -74,7 +74,7 @@ async function main(): Promise<void> {
 
   // codex
   const codex = await resolveCodex(log);
-  log.info("codex ready", { path: codex.path, version: codex.version });
+  log.info("codex ready", { source: codex.source, version: codex.version, staged: codex.staged });
 
   // App Server 客户端
   const client = new AppServerClient({ codexPath: codex.path, logger: log, requestTimeoutMs: 60_000 });

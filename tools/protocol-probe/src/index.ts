@@ -6,7 +6,7 @@
  */
 
 import { AppServerClient } from "@car/app-server-client";
-import { resolveCodex } from "@car/codex-resolver";
+import { redactLocalPath, resolveCodex } from "@car/codex-resolver";
 import { createLogger } from "@car/logger";
 import type { AccountInfo, RateLimitsResult } from "@car/protocol-schema";
 
@@ -121,7 +121,7 @@ function buildReport(
   rl: RateLimitsResult,
 ): string {
   const lines: string[] = [];
-  lines.push(`codex.path        = ${codex.path}`);
+  lines.push(`codex.path        = ${redactLocalPath(codex.path)}`);
   lines.push(`codex.version     = ${codex.version ?? "unknown"}`);
   lines.push(`codex.source      = ${codex.source}${codex.staged ? " (staged)" : ""}`);
   lines.push(`server.protocol    = ${client.diagnostics.serverProtocolVersion ?? "unknown"}`);
